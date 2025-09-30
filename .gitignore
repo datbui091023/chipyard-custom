@@ -31,3 +31,6 @@ project/project/
 .vscode/
 tests/build/
 .conda-env*/
+
+# local envs
+.conda-env*/
