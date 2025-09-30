@@ -35,3 +35,6 @@ tests/build/
 # local envs
 .conda-env*/
 .conda-env*/
+
+# local envs
+.conda-env*/
