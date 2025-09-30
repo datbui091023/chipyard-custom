@@ -94,7 +94,7 @@ class WithTacitEncoder extends Config((site, here, up) => {
           iaddrWidth = tp.tileParams.core.xLen
         ), 
         bufferDepth = 16, 
-        coreStages = 7, 
+        coreStages = 7,  
         bpParams = TacitBPParams(xlen = tp.tileParams.core.xLen, n_entries = 1024))(p)),
         useArbiterMonitor = false
       )),

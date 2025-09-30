@@ -323,7 +323,13 @@ run-binaries: check-binaries $(addsuffix .run,$(wildcard $(BINARIES)))
 		$(PERMISSIVE_OFF) \
 		$* \
 		$(BINARY_ARGS) \
-		</dev/null 2> >(spike-dasm > $(call get_sim_out_name,$*).out) | tee $(call get_sim_out_name,$*).log)
+		</dev/null 2> >(tee \
+    	>(grep "^C0:" | spike-dasm > $(call get_sim_out_name,$*).core0.out) \
+    	>(grep "^C1:" | spike-dasm > $(call get_sim_out_name,$*).core1.out) \
+   		| spike-dasm > $(call get_sim_out_name,$*).out) \
+| 		tee $(call get_sim_out_name,$*).log)
+
+# </dev/null 2> >(spike-dasm > $(call get_sim_out_name,$*).out) | tee $(call get_sim_out_name,$*).log)
 
 # run simulator as fast as possible (no insn disassembly)
 run-binary-fast: check-binary $(BINARY).run.fast

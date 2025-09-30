@@ -93,8 +93,8 @@ class FlatChipTop(implicit p: Parameters) extends LazyModule with HasChipyardPor
     //=========================
     // Custom Boot
     //=========================
-    val (custom_boot_pad, customBootIOCell) = IOCell.generateIOFromSignal(system.custom_boot_pin.get.getWrappedValue, "custom_boot", p(IOCellKey))
-    ports = ports :+ CustomBootPort(() => custom_boot_pad)
+    // val (custom_boot_pad, customBootIOCell) = IOCell.generateIOFromSignal(system.custom_boot_pin.get.getWrappedValue, "custom_boot", p(IOCellKey))
+    // ports = ports :+ CustomBootPort(() => custom_boot_pad)
 
     //=========================
     // Serialized TileLink

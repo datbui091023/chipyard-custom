@@ -11,7 +11,7 @@ import freechips.rocketchip.prci.{AsynchronousCrossing}
 import chipyard.stage.phases.TargetDirKey
 import freechips.rocketchip.subsystem._
 import freechips.rocketchip.util.{ResourceFileName}
-
+import freechips.rocketchip.devices.tilelink.{ExternalResetVecKey,TLPunchKey,TLPunchParams}   //datbt11
 import sifive.blocks.devices.gpio._
 import sifive.blocks.devices.uart._
 import sifive.blocks.devices.spi._
@@ -161,6 +161,14 @@ class WithNoCLINT extends Config((site, here, up) => {
 
 class WithNoBootROM extends Config((site, here, up) => {
   case BootROMLocated(_) => Nil
+})
+
+class WithResetVectorDriven(addr: BigInt) extends Config((site, here, up) => {
+  case ExternalResetVecKey => Some(addr)
+})
+
+class WithTLPunchThrough(base: BigInt, size: Int, beatBytes: Int) extends Config((site, here, up) => {
+  case TLPunchKey => Some(TLPunchParams(base, size, beatBytes))
 })
 
 class WithRadBootROM(address: BigInt = 0x10000, size: Int = 0x10000, hang: BigInt = 0x10100) extends Config((site, here, up) => {

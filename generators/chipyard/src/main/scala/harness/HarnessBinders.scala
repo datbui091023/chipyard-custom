@@ -340,4 +340,92 @@ class WithOffchipBusSelPlusArg extends HarnessBinder({
     port.io := pin
   }
 })
+// okay one
+class WithTieOffTLROMInHarness extends HarnessBinder({
+  case (th: HasHarnessInstantiators, port: TLMemPort, chipId: Int) =>
+    val hb = port.io  // lấy đúng HeterogeneousBag đã export
 
+    // Tie-off an toàn: compile pass, tránh "not fully initialized"
+    hb.foreach { tl =>
+      tl.a.ready := true.B
+      tl.d.valid := false.B
+      tl.d.bits  := 0.U.asTypeOf(tl.d.bits)
+    }
+})
+// class WithExtBootromHarness extends HarnessBinder({
+//   case (th: HasHarnessInstantiators, port: Data, chipId: Int) =>
+//     port match {
+//       case p: TLROMPort =>
+//         // External ROM/DPI model của bạn
+//         val rom = Module(new ExtBootromModel(/* params nếu có */))
+
+//         // Clock/reset lấy từ chính domain đã punch-through
+//         rom.clock := p.clock
+//         rom.reset := p.reset
+
+//         // Nối TileLink
+//         rom.io.tl <> p.tl
+
+//       case _ => // bỏ qua port khác
+//     }
+// })
+
+// class TLNullROM(proto: TLBundle) extends Module {
+//   val io = IO(new Bundle {
+//     // Ở Harness ta đứng "ngoài" DUT, nên đảo chiều để drive đúng hướng về DUT
+//     val tl = Flipped(chiselTypeOf(proto))
+//   })
+
+//   // Nếu bus là UL (A/D), các kênh BCE sẽ không tồn tại; code dưới an toàn cho cả 2
+//   io.tl.a.ready := true.B
+
+//   val holdA   = Reg(chiselTypeOf(io.tl.a.bits))
+//   val aFired  = io.tl.a.fire
+//   when (aFired) { holdA := io.tl.a.bits }
+
+//   val isGet   = RegEnable(io.tl.a.bits.opcode === TLMessages.Get, aFired)
+//   val dValid  = RegNext(aFired && isGet, init=false.B)
+
+//   val dBits = WireDefault(0.U.asTypeOf(io.tl.d.bits))
+//   dBits.opcode := TLMessages.AccessAckData
+//   dBits.param  := 0.U
+//   dBits.size   := holdA.size
+//   dBits.source := holdA.source
+//   dBits.denied := false.B
+//   dBits.data   := 0.U
+//   dBits.corrupt:= false.B
+
+//   io.tl.d.valid := dValid
+//   io.tl.d.bits  := dBits
+
+//   // Tie-off nếu có BCE
+//   if (io.tl.params.hasBCE) {
+//     io.tl.b.ready := true.B
+//     io.tl.c.valid := false.B
+//     io.tl.e.valid := false.B
+//   }
+// }
+
+// class WithTieOffTLROMInHarness extends HarnessBinder({
+//   case (_: HasHarnessInstantiators, port: Data, chipId: Int) =>
+//     port match {
+//       case rec: chisel3.Record if rec.instanceName.contains("auto_bootrom_in") =>
+//         // Helper: ép kiểu an toàn
+//         def asBool(name: String): Bool = rec.elements(name).asInstanceOf[Bool]
+//         def asUInt(name: String): UInt = rec.elements(name).asInstanceOf[UInt]
+
+//         // Các field có mặt theo Bundle mảnh bạn đã export:
+//         // A (Client->Manager): ta (external ROM) cung cấp a_ready cho DUT
+//         asBool("a_ready") := true.B
+
+//         // D (Manager->Client): ta (external ROM) cung cấp d_valid/size/source/data cho DUT
+//         asBool("d_valid")      := false.B
+//         asUInt("d_bits_size")  := 0.U.asTypeOf(asUInt("d_bits_size"))
+//         asUInt("d_bits_source"):= 0.U.asTypeOf(asUInt("d_bits_source"))
+//         asUInt("d_bits_data")  := 0.U.asTypeOf(asUInt("d_bits_data"))
+
+//         // Các Output từ DUT (a_valid, a_bits_*, d_ready) ta KHÔNG cần drive
+//         // → không gán gì thêm là đủ (Chisel cho phép Output "treo" ở Harness).
+//       case _ => // bỏ qua các port khác
+//     }
+// })

@@ -27,6 +27,7 @@ import sifive.blocks.devices.spi._
 import sifive.blocks.devices.i2c._
 import tracegen.{TraceGenSystemModuleImp}
 
+
 import chipyard.iocell._
 
 import testchipip.serdes.{CanHavePeripheryTLSerial, SerialTLKey}
@@ -38,7 +39,7 @@ import testchipip.iceblk.{CanHavePeripheryBlockDevice, BlockDeviceKey, BlockDevi
 import testchipip.cosim.{CanHaveTraceIO, TraceOutputTop, SpikeCosimConfig}
 import testchipip.tsi.{CanHavePeripheryUARTTSI, UARTTSIIO}
 import icenet.{CanHavePeripheryIceNIC, SimNetwork, NicLoopback, NICKey, NICIOvonly}
-import chipyard.{CanHaveMasterTLMemPort, ChipyardSystem, ChipyardSystemModule}
+import chipyard.{CanHaveMasterTLMemPort, ChipyardSystem, ChipyardSystemModule,CanHaveTLPunchThrough,CanTapCBusClkRst}
 import chipyard.example.{CanHavePeripheryGCD}
 
 import scala.reflect.{ClassTag}
@@ -607,3 +608,44 @@ class WithOffchipBusSel extends OverrideIOBinder({
     }.getOrElse(Nil, Nil)
   }
 })
+
+// class WithTLROMPunchthrough extends OverrideIOBinder({
+//   (system: CanHaveTLPunchThrough) => {
+//     // Clone đúng kiểu HeterogeneousBag[TLBundle] từ system.rom_tl
+//     val io_rom_pins = IO(
+//       DataMirror.internal.chiselTypeClone[HeterogeneousBag[TLBundle]](system.rom_tl)
+//     ).suggestName("tl_rom")
+//     io_rom_pins <> system.rom_tl
+
+//     // Nếu bạn có “descriptor” riêng thì trả ở đây; không có thì (Nil, Nil) là đủ
+//     (Nil, Nil)
+//   }
+// })
+
+// okay one
+class WithTLROMPunchthrough extends OverrideIOBinder({
+  (system: CanHaveTLPunchThrough) => {
+    val io_tl_mem_pins_temp = IO(DataMirror.internal.chiselTypeClone[HeterogeneousBag[TLBundle]](system.tl_rom_io)).suggestName("tl_rom")
+    io_tl_mem_pins_temp <> system.tl_rom_io
+    (Seq(TLMemPort(() => io_tl_mem_pins_temp)), Nil)
+  }
+})
+
+class WithCBusClkRstPunchthrough extends OverrideIOBinder({
+  (sys: CanTapCBusClkRst) => {
+    // Tạo IO top-level của DUT
+    val cbus_clk   = IO(Output(Clock())).suggestName("cbus_clk")
+    val cbus_reset = IO(Output(AsyncReset())).suggestName("cbus_reset")
+
+    // Nối từ ModuleValue[...] (bên trong Subsystem) ra IO top-level
+    cbus_clk   := sys.cbus_clk_out
+    cbus_reset := sys.cbus_rst_out
+
+    // Không phát Port tag -> TestHarness không cần làm gì thêm.
+    (Nil, Nil)
+  }
+})
+
+
+
+

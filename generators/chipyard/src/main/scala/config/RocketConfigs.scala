@@ -135,3 +135,131 @@ class AsyncResetRocketConfig extends Config(
     ("uncore", Seq("sbus", "mbus", "pbus", "fbus", "cbus", "obus", "implicit", "clock_tap"), Seq("tile")),
   ) ++
   new MulticlockRocketConfig)
+
+class TestingRocketConfig extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new freechips.rocketchip.subsystem.WithInclusiveCache ++ // 1 bank L2$ (coherence)
+  new freechips.rocketchip.subsystem.WithCoherentBusTopology ++
+  new chipyard.config.AbstractConfig
+)
+class NoTLRocketConfig extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new chipyard.config.AbstractConfig
+)
+class NoTLRocketConfig2 extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.AbstractConfig
+)
+class WithNoTLRocketConfig extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.AbstractConfig
+)
+class WithAXIMEMRocketConfig extends Config(
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.harness.WithSimAXIMem ++ 
+  new freechips.rocketchip.rocket.WithNHugeCores(1) ++
+  new chipyard.config.AbstractConfig
+)
+
+class With100MHzBusRocketConfig extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.WithUniformBusFrequencies(100.0) ++           /** set 100 MHz cho toàn bộ bus */
+  new chipyard.config.AbstractConfig
+)
+class WithNewROMRocketConfig extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.WithUniformBusFrequencies(100.0) ++           /** set 100 MHz cho toàn bộ bus */
+  new chipyard.config.AbstractConfig
+)
+
+class WithNoBootROMRocketConfig extends Config(           // with Reset Vector driven
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.WithNoBootROM ++
+  new chipyard.config.WithResetVectorDriven(0x10040) ++
+  new chipyard.config.WithUniformBusFrequencies(100.0) ++           /** set 100 MHz cho toàn bộ bus */
+  new chipyard.config.AbstractConfig
+)
+
+// Config for TLROM xtor
+class WithTLROMPunchThroughRocketConfig extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.WithNoBootROM ++
+  new chipyard.config.WithResetVectorDriven(0x10040) ++             // with Reset Vector driven
+  new chipyard.iobinders.WithTLROMPunchthrough ++                   // punch through cbus TLBundle to Harness
+  new chipyard.harness.WithTieOffTLROMInHarness ++                  
+  new chipyard.iobinders.WithCBusClkRstPunchthrough ++              // punch through cbus clk, rst to Harness
+  new chipyard.config.WithUniformBusFrequencies(100.0) ++           // set 100 MHz cho toàn bộ bus 
+  new chipyard.config.AbstractConfig
+)
+
+class With4UARTIORocketConfig extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.WithUniformBusFrequencies(100.0) ++           /** set 100 MHz cho toàn bộ bus */
+  new chipyard.config.AbstractConfig
+)
+
+class WithNoUARTRocketConfig extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new chipyard.config.WithNoUART ++
+  new freechips.rocketchip.subsystem.WithDefaultMMIOPort ++  // add default external master port
+  new chipyard.harness.WithSimAXIMMIO ++                     // avoid sink IO error
+  new chipyard.iobinders.WithAXI4MMIOPunchthrough ++
+  new chipyard.config.WithUniformBusFrequencies(100.0) ++           /** set 100 MHz cho toàn bộ bus */
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.AbstractConfig
+)
+
+class WithNewTLXBarRocketConfig extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new chipyard.config.WithUniformBusFrequencies(100.0) ++           /** set 100 MHz cho toàn bộ bus */
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.AbstractConfig
+)
+
+  // Config for Block Device 
+class WithBlockDevicev1RocketConfig extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.WithNoBootROM ++
+  new chipyard.config.WithResetVectorDriven(0x10040) ++             // with Reset Vector driven
+  new chipyard.iobinders.WithTLROMPunchthrough ++                   // punch through cbus TLBundle to Harness
+  new chipyard.harness.WithTieOffTLROMInHarness ++                  
+  new chipyard.iobinders.WithCBusClkRstPunchthrough ++              // punch through cbus clk, rst to Harness
+  new chipyard.harness.WithSimBlockDevice ++                     // drive block-device IOs with SimBlockDevice
+  new testchipip.iceblk.WithBlockDevice ++                       // add block-device module to peripherybus
+  new chipyard.config.WithUniformBusFrequencies(100.0) ++           // set 100 MHz cho toàn bộ bus 
+  new chipyard.config.AbstractConfig
+)
+class WithBlockDevicev2RocketConfig extends Config(
+  new freechips.rocketchip.rocket.WithNHugeCores(2) ++
+  new chipyard.harness.WithSerialTLTiedOff ++
+  new testchipip.serdes.WithNoSerialTL ++
+  new chipyard.config.WithNoBootROM ++
+  new chipyard.config.WithResetVectorDriven(0x10040) ++             // with Reset Vector driven
+  new chipyard.iobinders.WithTLROMPunchthrough ++                   // punch through cbus TLBundle to Harness
+  new chipyard.harness.WithTieOffTLROMInHarness ++                  
+  new chipyard.iobinders.WithCBusClkRstPunchthrough ++              // punch through cbus clk, rst to Harness
+  new chipyard.harness.WithSimBlockDevice ++                     // drive block-device IOs with SimBlockDevice
+  new testchipip.iceblk.WithBlockDevice ++                       // add block-device module to peripherybus
+  new chipyard.config.WithUniformBusFrequencies(100.0) ++           // set 100 MHz cho toàn bộ bus 
+  new chipyard.config.AbstractConfig
+)

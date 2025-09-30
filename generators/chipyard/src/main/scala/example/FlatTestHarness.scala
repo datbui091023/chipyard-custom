@@ -38,7 +38,7 @@ class FlatTestHarness(implicit val p: Parameters) extends Module {
   dut.reset_pad := reset.asAsyncReset
 
   // Custom boot
-  dut.custom_boot_pad := PlusArg("custom_boot_pin", width=1)
+  // dut.custom_boot_pad := PlusArg("custom_boot_pin", width=1)
 
   // Serialized TL
   val sVal = p(SerialTLKey)(0)

@@ -320,7 +320,7 @@ if run_step "10"; then
         if [ -z "$RISCV" ] ; then
             error "ERROR: If conda initialization skipped, \$RISCV variable must be defined."
             exit 1
-        fi
+        fig
         PREFIX=$RISCV
     fi
 

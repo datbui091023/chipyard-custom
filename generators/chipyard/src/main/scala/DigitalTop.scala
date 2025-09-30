@@ -15,7 +15,7 @@ import freechips.rocketchip.devices.tilelink._
 // DOC include start: DigitalTop
 class DigitalTop(implicit p: Parameters) extends ChipyardSystem
   with testchipip.tsi.CanHavePeripheryUARTTSI // Enables optional UART-based TSI transport
-  with testchipip.boot.CanHavePeripheryCustomBootPin // Enables optional custom boot pin
+  // with testchipip.boot.CanHavePeripheryCustomBootPin // Enables optional custom boot pin
   with testchipip.cosim.CanHaveTraceIO // Enables optionally adding trace IO
   with testchipip.soc.CanHaveSubsystemInjectors // Enables the subsystem injector API
   with testchipip.soc.CanHaveSwitchableOffchipBus // Enables optional off-chip-bus with interface-switch

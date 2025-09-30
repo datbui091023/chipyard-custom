@@ -24,10 +24,10 @@ class AbstractConfig extends Config(
   new chipyard.harness.WithGPIOTiedOff ++                          /** tie-off chiptop GPIOs, if GPIOs are present */
   new chipyard.harness.WithI2CTiedOff ++                           /** tie-off i2c ports if present */
   new chipyard.harness.WithSimSPIFlashModel ++                     /** add simulated SPI flash memory, if SPI is enabled */
-  new chipyard.harness.WithSimAXIMMIO ++                           /** add SimAXIMem for axi4 mmio port, if enabled */
+  // new chipyard.harness.WithSimAXIMMIO ++                           /** add SimAXIMem for axi4 mmio port, if enabled */
   new chipyard.harness.WithTieOffInterrupts ++                     /** tie-off interrupt ports, if present */
   new chipyard.harness.WithTieOffL2FBusAXI ++                      /** tie-off external AXI4 master, if present */
-  new chipyard.harness.WithCustomBootPinPlusArg ++                 /** drive custom-boot pin with a plusarg, if custom-boot-pin is present */
+  // new chipyard.harness.WithCustomBootPinPlusArg ++                 /** drive custom-boot pin with a plusarg, if custom-boot-pin is present */
   new chipyard.harness.WithDriveChipIdPin ++                       /** drive chip id pin from harness binder, if chip id pin is present */
   new chipyard.harness.WithSimUARTToUARTTSI ++                     /** connect a SimUART to the UART-TSI port */
   new chipyard.harness.WithOffchipBusSelPlusArg ++             /** drive offchip-bus-sel pin from plusArg */
@@ -48,7 +48,7 @@ class AbstractConfig extends Config(
   new chipyard.iobinders.WithSPIFlashIOCells ++
   new chipyard.iobinders.WithExtInterruptIOCells ++
   new chipyard.iobinders.WithChipIdIOCells ++
-  new chipyard.iobinders.WithCustomBootPin ++
+  // new chipyard.iobinders.WithCustomBootPin ++
   // The "punchthrough" IOBInders below don't generate IOCells, as these interfaces shouldn't really be mapped to ASIC IO
   // Instead, they directly pass through the DigitalTop ports to ports in the ChipTop
   new chipyard.iobinders.WithI2CPunchthrough ++
@@ -93,7 +93,7 @@ class AbstractConfig extends Config(
   new freechips.rocketchip.subsystem.WithJtagDTM ++                 /** set the debug module to expose a JTAG port */
 
   // Boot Select Pins
-  new testchipip.boot.WithCustomBootPin ++                          /** add a custom-boot-pin to support pin-driven boot address */
+  // new testchipip.boot.WithCustomBootPin ++                          /** add a custom-boot-pin to support pin-driven boot address */
   new testchipip.boot.WithBootAddrReg ++                            /** add a boot-addr-reg for configurable boot address */
 
 
@@ -114,7 +114,7 @@ class AbstractConfig extends Config(
   //   Set up Memory system
   // ================================================
   // On-chip memory section
-  new freechips.rocketchip.subsystem.WithDTS("ucb-bar,chipyard", Nil) ++ /** custom device name for DTS (embedded in BootROM) */
+  new freechips.rocketchip.subsystem.WithDTS("ucb-bar,chipyard", Nil) ++ /** custom device name for DTS (embedded in BootROM) */ 
   new chipyard.config.WithBootROM ++                                     /** use default bootrom */
   new testchipip.soc.WithMbusScratchpad(base = 0x08000000,               /** add 64 KiB on-chip scratchpad */
                                         size = 64 * 1024) ++
@@ -139,7 +139,7 @@ class AbstractConfig extends Config(
   new chipyard.clocking.WithClockGroupsCombinedByName(("uncore",        /** create a "uncore" clock group tieing all the bus clocks together */
     Seq("sbus", "mbus", "pbus", "fbus", "cbus", "obus", "implicit", "clock_tap"),
     Seq("tile"))) ++
-
+  
   new chipyard.config.WithPeripheryBusFrequency(500.0) ++           /** Default 500 MHz pbus */
   new chipyard.config.WithMemoryBusFrequency(500.0) ++              /** Default 500 MHz mbus */
   new chipyard.config.WithControlBusFrequency(500.0) ++             /** Default 500 MHz cbus */
@@ -147,7 +147,9 @@ class AbstractConfig extends Config(
   new chipyard.config.WithFrontBusFrequency(500.0) ++               /** Default 500 MHz fbus */
   new chipyard.config.WithOffchipBusFrequency(500.0) ++             /** Default 500 MHz obus */
   new chipyard.config.WithInheritBusFrequencyAssignments ++         /** Unspecified clocks within a bus will receive the bus frequency if set */
-  new chipyard.config.WithNoSubsystemClockIO ++                     /** drive the subsystem diplomatic clocks from ChipTop instead of using implicit clocks */
+  new chipyard.config.WithNoSubsystemClockIO ++                     /** Nhận clock từ testbench thông qua IO */ 
+                                                                    /** Mặc định là nhận implicit clock
+                                                                    (clock/reset mà Chisel/RocketChip auto gán cho các module con, không cần khai báo IO.) từ Subsystem */
 
   // reset
 
